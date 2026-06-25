@@ -1,0 +1,22 @@
+{
+  "name": "scraper-challenge",
+  "version": "1.0.0",
+  "description": "Desafío de scraping en TypeScript sin automatización de navegador",
+  "main": "src/index.ts",
+  "scripts": {
+    "start:oefa": "ts-node src/index.ts --site=oefa",
+    "start:pj": "ts-node src/index.ts --site=pj",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "playwright": "^1.61.1",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
