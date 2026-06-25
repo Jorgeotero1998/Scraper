@@ -1,4 +1,4 @@
-# Scraper de Jurisprudencia PJ / OEFA
+# Scraper de Jurisprudencia
 
 Solución robusta y escalable para la extracción automatizada de datos jurisprudenciales, desarrollada en TypeScript bajo el paradigma de **extracción mediante requests HTTP puros**, garantizando alta eficiencia y cumplimiento estricto de las restricciones de no automatización de navegadores.
 
@@ -18,7 +18,7 @@ El sistema ha sido diseñado para interactuar directamente con el ciclo de vida 
 
 - **Node.js**: v18 o superior.
 - **Gestor de paquetes**: `npm`.
-- **Conexión**: VPN requerida para el portal de Jurisprudencia del Poder Judicial (Perú).
+- **Conexión**: VPN requerida para el portal..
 
 ---
 
