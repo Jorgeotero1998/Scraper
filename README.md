@@ -1,6 +1,6 @@
 # Scraper de Jurisprudencia
 
-Solución robusta y escalable para la extracción automatizada de datos jurisprudenciales, desarrollada en TypeScript bajo el paradigma de **extracción mediante requests HTTP puros**, garantizando alta eficiencia y cumplimiento estricto de las restricciones de no automatización de navegadores.
+Solución robusta y escalable para la extracción automatizada de datos jurisprudenciales, el scraper principal (OEFA) fue implementado con HTTP puro y Cheerio. Para el portal del Poder Judicial de Perú, que requiere VPN, se implementó una solución alternativa con Playwright como fallback durante el desarrollo.
 
 ---
 
