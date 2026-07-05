@@ -1,7 +1,22 @@
 ﻿node_modules/
 dist/
 output/
-pdfs/
+logs/
+coverage/
+
+# Environment / secrets
 .env
-*.log
+.env.local
+.env.*.local
+
+# OS artefacts
 .DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# Playwright browser binaries (already skip-downloaded in Docker)
+/playwright-browsers/

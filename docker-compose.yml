@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  scraper-oefa:
+    build: .
+    image: jurisprudencia-scraper:latest
+    command: ["--site=oefa"]
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+      LOG_DIR: /app/logs
+    restart: "no"
+
+  scraper-pj:
+    build: .
+    image: jurisprudencia-scraper:latest
+    command: ["--site=pj"]
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+      LOG_DIR: /app/logs
+    restart: "no"
+    profiles:
+      - pj

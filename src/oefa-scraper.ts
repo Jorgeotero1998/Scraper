@@ -3,16 +3,17 @@ import * as fs from "fs";
 import * as path from "path";
 import { HttpClient } from "./http-client";
 import { logger } from "./logger";
-import { Document, FailedDownload, PaginationInfo, ScraperConfig, ScrapeResult, ViewState } from "./types";
+import { buildSafeFilename, documentsToCSV, parsePagination, sleep } from "./utils";
+import type { Document, FailedDownload, ScraperConfig, ScrapeResult, ViewState } from "./types";
 
-const DELAY_BETWEEN_PAGES = 2000;
-const DELAY_BETWEEN_DOWNLOADS = 1500;
+const DELAY_BETWEEN_PAGES = 2_000;
+const DELAY_BETWEEN_DOWNLOADS = 1_500;
 
 export class OefaScraper {
-  private config: ScraperConfig;
-  private http: HttpClient;
+  private readonly config: ScraperConfig;
+  private readonly http: HttpClient;
   private viewState: ViewState = { value: "" };
-  private formId = "listarDetalleInfraccionRAAForm";
+  private readonly formId = "listarDetalleInfraccionRAAForm";
 
   constructor(config: ScraperConfig) {
     this.config = config;
@@ -21,29 +22,11 @@ export class OefaScraper {
     fs.mkdirSync(config.pdfsDir, { recursive: true });
   }
 
-  private async sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
   private extractViewState($: cheerio.CheerioAPI): void {
     const vs = $('input[name="javax.faces.ViewState"]').first().val();
     if (vs && typeof vs === "string") {
       this.viewState.value = vs;
     }
-  }
-
-  private parsePagination($: cheerio.CheerioAPI): PaginationInfo {
-    const paginationText = $(".ui-paginator-current").text().trim();
-    const match = paginationText.match(/P[aá]gina\s+(\d+)\s+de\s+(\d+)\s*\((\d+)\s+registros?\)/i);
-
-    if (match) {
-      return {
-        currentPage: parseInt(match[1], 10),
-        totalPages: parseInt(match[2], 10),
-        totalRecords: parseInt(match[3], 10),
-      };
-    }
-    return { currentPage: 1, totalPages: 1, totalRecords: 0 };
   }
 
   private parseDocuments($: cheerio.CheerioAPI): Document[] {
@@ -55,33 +38,39 @@ export class OefaScraper {
 
       let pdfUrl: string | null = null;
 
-      const interactiveElements = $(row).find("a, button, input[type='submit'], .ui-commandlink");
-      interactiveElements.each((_, el) => {
-        const id = $(el).attr("id");
-        if (id && id.includes(`${this.formId}:dt:`)) {
-          pdfUrl = id;
-          return false;
-        }
-        const onclick = $(el).attr("onclick");
-        if (onclick && onclick.includes(`${this.formId}:dt:`)) {
-          const match = onclick.match(/'([^']+:[^']+:[^']+)'/);
-          if (match && match[1]) {
-            pdfUrl = match[1];
+      $(row)
+        .find("a, button, input[type='submit'], .ui-commandlink")
+        .each((_, el) => {
+          const id = $(el).attr("id");
+          if (id?.includes(`${this.formId}:dt:`)) {
+            pdfUrl = id;
             return false;
           }
-        }
-      });
-
-      if (!pdfUrl) {
-        $(cells).each((_, cell) => {
-          $(cell).find("*").each((_, child) => {
-            const id = $(child).attr("id");
-            if (id && id.includes(`${this.formId}:dt:`)) {
-              pdfUrl = id;
+          const onclick = $(el).attr("onclick");
+          if (onclick?.includes(`${this.formId}:dt:`)) {
+            const m = onclick.match(/'([^']+:[^']+:[^']+)'/);
+            if (m?.[1]) {
+              pdfUrl = m[1];
               return false;
             }
-          });
+          }
+          return;
+        });
+
+      if (!pdfUrl) {
+        cells.each((_, cell) => {
+          $(cell)
+            .find("*")
+            .each((_, child) => {
+              const id = $(child).attr("id");
+              if (id?.includes(`${this.formId}:dt:`)) {
+                pdfUrl = id;
+                return false;
+              }
+              return;
+            });
           if (pdfUrl) return false;
+          return;
         });
       }
 
@@ -91,31 +80,20 @@ export class OefaScraper {
         administrado: $(cells[2]).text().trim(),
         unidadFiscalizable: $(cells[3]).text().trim(),
         sector: $(cells[4]).text().trim(),
-        nroResolucion: $(cells[5])?.text().trim() || "",
+        nroResolucion: $(cells[5])?.text().trim() ?? "",
         pdfUrl,
       };
 
-      if (doc.expediente || doc.nroResolucion) {
-        documents.push(doc);
-      }
+      if (doc.expediente || doc.nroResolucion) documents.push(doc);
     });
 
     return documents;
   }
 
-  private buildSafeFilename(doc: Document): string {
-    const base = [doc.nroResolucion || doc.expediente || doc.rowNumber]
-      .join("_")
-      .replace(/[^a-zA-Z0-9_\-]/g, "_")
-      .replace(/_+/g, "_")
-      .substring(0, 100);
-    return `${base}.pdf`;
-  }
-
   private async downloadPdf(doc: Document, failedDownloads: FailedDownload[]): Promise<boolean> {
     if (!doc.pdfUrl) return false;
 
-    const filename = this.buildSafeFilename(doc);
+    const filename = buildSafeFilename(doc);
     const filepath = path.join(this.config.pdfsDir, filename);
 
     if (fs.existsSync(filepath)) {
@@ -124,16 +102,17 @@ export class OefaScraper {
     }
 
     try {
-      logger.info(`Downloading PDF via JSF POST: ${filename}`);
+      logger.info(`Downloading PDF: ${filename}`);
 
-      const params = new URLSearchParams();
-      params.set("javax.faces.partial.ajax", "true");
-      params.set("javax.faces.source", doc.pdfUrl);
-      params.set("javax.faces.partial.execute", "@all");
-      params.set("javax.faces.partial.render", "@all");
-      params.set(doc.pdfUrl, doc.pdfUrl);
-      params.set(this.formId, this.formId);
-      params.set("javax.faces.ViewState", this.viewState.value);
+      const params = new URLSearchParams({
+        "javax.faces.partial.ajax": "true",
+        "javax.faces.source": doc.pdfUrl,
+        "javax.faces.partial.execute": "@all",
+        "javax.faces.partial.render": "@all",
+        [doc.pdfUrl]: doc.pdfUrl,
+        [this.formId]: this.formId,
+        "javax.faces.ViewState": this.viewState.value,
+      });
 
       const buffer = await this.http.postBinary(this.config.baseUrl, params, {
         "X-Requested-With": "XMLHttpRequest",
@@ -161,21 +140,22 @@ export class OefaScraper {
   }
 
   private async submitSearch(): Promise<cheerio.CheerioAPI> {
-    logger.info("Submitting search to load all records...");
+    logger.info("Submitting search to load all records…");
 
-    const params = new URLSearchParams();
-    params.set("javax.faces.partial.ajax", "true");
-    params.set("javax.faces.source", `${this.formId}:btnBuscar`);
-    params.set("javax.faces.partial.execute", "@all");
-    params.set("javax.faces.partial.render", "@all");
-    params.set(`${this.formId}:btnBuscar`, `${this.formId}:btnBuscar`);
-    params.set(`${this.formId}:txtExpediente`, "");
-    params.set(`${this.formId}:txtAdministrado`, "");
-    params.set(`${this.formId}:txtUnidadFiscalizable`, "");
-    params.set(`${this.formId}:cmbSector_input`, "");
-    params.set(`${this.formId}:txtNroResolucion`, "");
-    params.set(`${this.formId}`, this.formId);
-    params.set("javax.faces.ViewState", this.viewState.value);
+    const params = new URLSearchParams({
+      "javax.faces.partial.ajax": "true",
+      "javax.faces.source": `${this.formId}:btnBuscar`,
+      "javax.faces.partial.execute": "@all",
+      "javax.faces.partial.render": "@all",
+      [`${this.formId}:btnBuscar`]: `${this.formId}:btnBuscar`,
+      [`${this.formId}:txtExpediente`]: "",
+      [`${this.formId}:txtAdministrado`]: "",
+      [`${this.formId}:txtUnidadFiscalizable`]: "",
+      [`${this.formId}:cmbSector_input`]: "",
+      [`${this.formId}:txtNroResolucion`]: "",
+      [this.formId]: this.formId,
+      "javax.faces.ViewState": this.viewState.value,
+    });
 
     const response = await this.http.post(this.config.baseUrl, params, {
       "X-Requested-With": "XMLHttpRequest",
@@ -189,19 +169,20 @@ export class OefaScraper {
   }
 
   private async navigateToPage(pageIndex: number): Promise<cheerio.CheerioAPI> {
-    logger.info(`Navigating to page ${pageIndex + 1}...`);
+    logger.info(`Fetching page ${pageIndex + 1}…`);
 
-    const params = new URLSearchParams();
-    params.set("javax.faces.partial.ajax", "true");
-    params.set("javax.faces.source", `${this.formId}:dt`);
-    params.set("javax.faces.partial.execute", `${this.formId}:dt`);
-    params.set("javax.faces.partial.render", `${this.formId}:dt`);
-    params.set(`${this.formId}:dt_pagination`, "true");
-    params.set(`${this.formId}:dt_first`, String(pageIndex * 10));
-    params.set(`${this.formId}:dt_rows`, "10");
-    params.set(`${this.formId}:dt_skipChildren`, "true");
-    params.set(`${this.formId}`, this.formId);
-    params.set("javax.faces.ViewState", this.viewState.value);
+    const params = new URLSearchParams({
+      "javax.faces.partial.ajax": "true",
+      "javax.faces.source": `${this.formId}:dt`,
+      "javax.faces.partial.execute": `${this.formId}:dt`,
+      "javax.faces.partial.render": `${this.formId}:dt`,
+      [`${this.formId}:dt_pagination`]: "true",
+      [`${this.formId}:dt_first`]: String(pageIndex * 10),
+      [`${this.formId}:dt_rows`]: "10",
+      [`${this.formId}:dt_skipChildren`]: "true",
+      [this.formId]: this.formId,
+      "javax.faces.ViewState": this.viewState.value,
+    });
 
     const response = await this.http.post(this.config.baseUrl, params, {
       "X-Requested-With": "XMLHttpRequest",
@@ -220,44 +201,42 @@ export class OefaScraper {
     let totalDownloaded = 0;
 
     let $ = await this.fetchInitialPage();
-    await this.sleep(DELAY_BETWEEN_PAGES);
+    await sleep(DELAY_BETWEEN_PAGES);
 
     $ = await this.submitSearch();
-    await this.sleep(DELAY_BETWEEN_PAGES);
+    await sleep(DELAY_BETWEEN_PAGES);
 
-    let pagination = this.parsePagination($);
+    let pagination = parsePagination($);
     logger.info(`Found ${pagination.totalRecords} records across ${pagination.totalPages} pages`);
 
     if (pagination.totalRecords === 0) {
       logger.warn("No records found with initial search payload.");
-      const docs = this.parseDocuments($);
-      allDocuments.push(...docs);
+      allDocuments.push(...this.parseDocuments($));
     } else {
-      const docsOnFirstPage = this.parseDocuments($);
-      allDocuments.push(...docsOnFirstPage);
-      logger.info(`Page 1: extracted ${docsOnFirstPage.length} documents`);
+      const firstPageDocs = this.parseDocuments($);
+      allDocuments.push(...firstPageDocs);
+      logger.info(`Page 1/${pagination.totalPages}: extracted ${firstPageDocs.length} documents`);
 
       for (let page = 1; page < pagination.totalPages; page++) {
-        await this.sleep(DELAY_BETWEEN_PAGES);
+        await sleep(DELAY_BETWEEN_PAGES);
         $ = await this.navigateToPage(page);
-        pagination = this.parsePagination($);
-
+        pagination = parsePagination($);
         const docs = this.parseDocuments($);
         allDocuments.push(...docs);
-        logger.info(`Page ${page + 1}: extracted ${docs.length} documents`);
+        logger.info(`Page ${page + 1}/${pagination.totalPages}: extracted ${docs.length} documents`);
       }
     }
 
-    logger.info(`\nTotal documents extracted: ${allDocuments.length}`);
-    logger.info("Starting PDF downloads...\n");
+    logger.info(`Total documents extracted: ${allDocuments.length}`);
+    logger.info("Starting PDF downloads…");
 
     for (const doc of allDocuments) {
       if (doc.pdfUrl) {
-        const success = await this.downloadPdf(doc, failedDownloads);
-        if (success) totalDownloaded++;
-        await this.sleep(DELAY_BETWEEN_DOWNLOADS);
+        const ok = await this.downloadPdf(doc, failedDownloads);
+        if (ok) totalDownloaded++;
+        await sleep(DELAY_BETWEEN_DOWNLOADS);
       } else {
-        logger.warn(`No PDF URL found for: ${doc.nroResolucion || doc.expediente}`);
+        logger.warn(`No PDF URL for: ${doc.nroResolucion || doc.expediente}`);
       }
     }
 
@@ -275,32 +254,16 @@ export class OefaScraper {
   private saveResults(result: ScrapeResult): void {
     const jsonPath = path.join(this.config.outputDir, "documents.json");
     fs.writeFileSync(jsonPath, JSON.stringify(result.documents, null, 2), "utf-8");
-    logger.info(`Documents saved to ${jsonPath}`);
+    logger.info(`Saved JSON → ${jsonPath}`);
 
     if (result.failedDownloads.length > 0) {
       const failedPath = path.join(this.config.outputDir, "failed_downloads.json");
       fs.writeFileSync(failedPath, JSON.stringify(result.failedDownloads, null, 2), "utf-8");
-      logger.warn(`${result.failedDownloads.length} failed downloads saved to ${failedPath}`);
+      logger.warn(`${result.failedDownloads.length} failed downloads → ${failedPath}`);
     }
 
-    const csvRows = ["Nro,Expediente,Administrado,Unidad Fiscalizable,Sector,Nro Resolucion,PDF URL"];
-    for (const doc of result.documents) {
-      csvRows.push(
-        [
-          doc.rowNumber,
-          doc.expediente,
-          doc.administrado,
-          doc.unidadFiscalizable,
-          doc.sector,
-          doc.nroResolucion,
-          doc.pdfUrl ?? "",
-        ]
-          .map((v) => `"${v.replace(/"/g, '""')}"`)
-          .join(",")
-      );
-    }
     const csvPath = path.join(this.config.outputDir, "documents.csv");
-    fs.writeFileSync(csvPath, csvRows.join("\n"), "utf-8");
-    logger.info(`CSV saved to ${csvPath}`);
+    fs.writeFileSync(csvPath, documentsToCSV(result.documents), "utf-8");
+    logger.info(`Saved CSV  → ${csvPath}`);
   }
 }
