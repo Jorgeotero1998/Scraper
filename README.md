@@ -1,5 +1,14 @@
 # Jurisprudencia Scraper
 
+**Production-grade CLI scraper** for Peruvian legal databases — TypeScript, Playwright, Docker, **23 Vitest tests**, GitHub Actions CI.
+
+| | |
+|---|---|
+| **Repo** | [github.com/Jorgeotero1998/Scraper](https://github.com/Jorgeotero1998/Scraper) |
+| **Demo** | CLI only — clone & run locally |
+| **Tests** | 23 Vitest · CI on every push |
+| **Deploy** | Docker + docker-compose |
+
 A production-ready scraper for two Peruvian legal databases:
 
 | Target | URL | Access |
