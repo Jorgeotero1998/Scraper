@@ -20,7 +20,7 @@ export function getBackoffMs(baseMs: number, attempt: number): number {
  */
 export function buildSafeFilename(doc: Document): string {
   const stem = (doc.nroResolucion || doc.expediente || doc.rowNumber)
-    .replace(/[^a-zA-Z0-9_\-]/g, "_")
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
     .replace(/_+/g, "_")
     .substring(0, 100);
   return `${stem}.pdf`;
