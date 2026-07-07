@@ -1,21 +1,32 @@
 # Jurisprudencia Scraper
 
+[![CI](https://github.com/Jorgeotero1998/Scraper/actions/workflows/ci.yml/badge.svg)](https://github.com/Jorgeotero1998/Scraper/actions/workflows/ci.yml)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)](https://playwright.dev/)
+[![Cheerio](https://img.shields.io/badge/Cheerio-HTML_parser-E65C00?style=flat-square)](https://cheerio.js.org/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Tests](https://img.shields.io/badge/tests-23_Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-**Production-grade CLI scraper** for Peruvian legal databases — TypeScript, Playwright, Docker, **23 Vitest tests**, GitHub Actions CI.
+**Production-grade CLI scraper** for Peruvian legal databases — TypeScript, Playwright, Cheerio, Docker, **23 Vitest tests**, GitHub Actions CI.
 
-> 🖥️ **CLI tool — no live demo.** Clone & run locally (see [Quickstart](#quickstart)); sample JSON/CSV output shown in [Output format](#output-format).
+> 🖥️ **CLI tool — no live demo.** Clone & run locally ([Quickstart](#quickstart)); terminal output and export layout below.
 
 | | |
 |---|---|
 | **Repo** | [github.com/Jorgeotero1998/Scraper](https://github.com/Jorgeotero1998/Scraper) |
-| **Demo** | CLI only — clone & run locally |
-| **Tests** | 23 Vitest · CI on every push |
+| **Interface** | CLI only — `npm run start:oefa` / `start:pj` |
+| **Tests** | 23 Vitest · CI on every push (Node 18 & 20) |
 | **Deploy** | Docker + docker-compose |
+
+## CLI in action
+
+<p align="center">
+  <img src="docs/assets/cli-demo.svg" alt="Terminal output: OEFA scraper run with paginated extraction, retry/backoff, JSON/CSV export, and summary counts" width="920"/>
+</p>
+
+<p align="center"><sub><i>OEFA run — paginated scrape, exponential back-off on 429, JSON/CSV export, summary counts</i></sub></p>
 
 A production-ready scraper for two Peruvian legal databases:
 
@@ -30,6 +41,30 @@ metadata, and download linked PDFs. Results are persisted as **JSON** and **CSV*
 ---
 
 ## Architecture
+
+```mermaid
+flowchart TB
+  CLI["index.ts<br/>CLI entry-point"]
+  OEFA["oefa-scraper.ts<br/>Cheerio + HTTP"]
+  PJ["pj-scraper.ts<br/>Playwright Chromium"]
+  HTTP["http-client.ts<br/>Axios · retries · cookies"]
+  UTILS["utils.ts<br/>sleep · backoff · CSV"]
+  LOG["logger.ts<br/>Winston"]
+  OUT[("output/<br/>JSON · CSV · PDFs")]
+
+  CLI --> OEFA
+  CLI --> PJ
+  OEFA --> HTTP
+  PJ --> HTTP
+  OEFA --> UTILS
+  PJ --> UTILS
+  OEFA --> LOG
+  PJ --> LOG
+  OEFA --> OUT
+  PJ --> OUT
+```
+
+### Module layout
 
 ```
 src/
@@ -52,6 +87,7 @@ tests/
 - **Exponential back-off with jitter** — handles HTTP 429 and 500 without hammering the server.
 - **Mandatory inter-request delay** — `--delay` (default 2 000 ms) between every page request.
 - **Idempotent PDF downloads** — already-downloaded files are skipped on re-runs.
+- **Dual transport strategy** — Cheerio/HTTP for public OEFA; Playwright for JSF-heavy PJ portal behind VPN.
 
 ---
 

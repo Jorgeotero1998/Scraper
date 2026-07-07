@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="520" viewBox="0 0 920 520" role="img" aria-label="Jurisprudencia Scraper CLI demo output">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+    <style>
+      .mono { font-family: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, monospace; }
+      .title { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    </style>
+  </defs>
+  <rect width="920" height="520" rx="16" fill="url(#bg)" filter="url(#shadow)"/>
+  <rect width="920" height="36" rx="16" fill="#21262d"/>
+  <rect y="20" width="920" height="16" fill="url(#bg)"/>
+  <circle cx="20" cy="18" r="6" fill="#ff5f57"/>
+  <circle cx="40" cy="18" r="6" fill="#febc2e"/>
+  <circle cx="60" cy="18" r="6" fill="#28c840"/>
+  <text x="84" y="22" class="title" fill="#8b949e" font-size="12">jorge@dev  jurisprudencia-scraper  120×32</text>
+  <text x="28" y="68" class="mono" fill="#58a6ff" font-size="13">$ npm run start:oefa</text>
+  <text x="28" y="92" class="mono" fill="#7d8590" font-size="12">&gt; jurisprudencia-scraper@2.0.0 start:oefa</text>
+  <text x="28" y="112" class="mono" fill="#7d8590" font-size="12">&gt; ts-node src/index.ts --site=oefa</text>
+  <text x="28" y="144" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:12:04.182-03:00] INFO  : === OEFA Scraper (no VPN required) ===</text>
+  <text x="28" y="168" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:12:04.891-03:00] INFO  : Fetching initial page: publico.oefa.gob.pe</text>
+  <text x="28" y="192" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:12:06.204-03:00] INFO  : Submitting search to load all records&</text>
+  <text x="28" y="216" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:12:08.517-03:00] INFO  : Found 142 records across 8 pages</text>
+  <text x="28" y="240" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:12:10.103-03:00] INFO  : Page 1/8: extracted 20 documents</text>
+  <text x="28" y="264" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:13:44.880-03:00] INFO  : Page 8/8: extracted 2 documents</text>
+  <text x="28" y="288" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:14:22.006-03:00] INFO  : Total documents extracted: 142</text>
+  <text x="28" y="312" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:14:22.007-03:00] INFO  : Starting PDF downloads&</text>
+  <text x="28" y="336" class="mono" fill="#d29922" font-size="12">[2026-07-07T01:15:01.441-03:00] WARN  : Retry 429  backing off 2.1s (attempt 2/5)</text>
+  <text x="28" y="360" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:18:41.332-03:00] INFO  : Saved JSON ’ output/documents.json</text>
+  <text x="28" y="384" class="mono" fill="#3fb950" font-size="12">[2026-07-07T01:18:41.335-03:00] INFO  : Saved CSV  ’ output/documents.csv</text>
+  <text x="28" y="416" class="mono" fill="#79c0ff" font-size="12">[2026-07-07T01:18:41.336-03:00] INFO  : === Summary ===</text>
+  <text x="28" y="440" class="mono" fill="#79c0ff" font-size="12">[2026-07-07T01:18:41.336-03:00] INFO  : Documents scraped : 142</text>
+  <text x="28" y="464" class="mono" fill="#79c0ff" font-size="12">[2026-07-07T01:18:41.336-03:00] INFO  : PDFs downloaded   : 138</text>
+  <text x="28" y="488" class="mono" fill="#79c0ff" font-size="12">[2026-07-07T01:18:41.336-03:00] INFO  : Failed downloads  : 4</text>
+</svg>
