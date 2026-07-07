@@ -1,6 +1,14 @@
 # Jurisprudencia Scraper
 
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)](https://playwright.dev/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Tests](https://img.shields.io/badge/tests-23_Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+
 **Production-grade CLI scraper** for Peruvian legal databases — TypeScript, Playwright, Docker, **23 Vitest tests**, GitHub Actions CI.
+
+> 🖥️ **CLI tool — no live demo.** Clone & run locally (see [Quickstart](#quickstart)); sample JSON/CSV output shown in [Output format](#output-format).
 
 | | |
 |---|---|
