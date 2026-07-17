@@ -4,7 +4,7 @@
   "description": "Scraper for Peruvian legal jurisprudence databases (OEFA & Poder Judicial)",
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "start:oefa": "ts-node src/index.ts --site=oefa",

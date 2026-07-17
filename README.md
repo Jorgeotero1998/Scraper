@@ -1,7 +1,7 @@
 # Jurisprudencia Scraper
 
 [![CI](https://github.com/Jorgeotero1998/Scraper/actions/workflows/ci.yml/badge.svg)](https://github.com/Jorgeotero1998/Scraper/actions/workflows/ci.yml)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)](https://playwright.dev/)
 [![Cheerio](https://img.shields.io/badge/Cheerio-HTML_parser-E65C00?style=flat-square)](https://cheerio.js.org/)
@@ -17,7 +17,7 @@
 |---|---|
 | **Repo** | [github.com/Jorgeotero1998/Scraper](https://github.com/Jorgeotero1998/Scraper) |
 | **Interface** | CLI only — `npm run start:oefa` / `start:pj` |
-| **Tests** | 23 Vitest · CI on every push (Node 18 & 20) |
+| **Tests** | 23 Vitest · CI on every push (Node 20 & 22) |
 | **Deploy** | Docker + docker-compose |
 
 ## CLI in action
