@@ -41,7 +41,9 @@ export class PjScraper {
         });
 
       if (!pdfUrl) {
-        const idMatch = $(row).html()?.match(/id="([^"]+tablaResultado:[^"]+)"/);
+        const idMatch = $(row)
+          .html()
+          ?.match(/id="([^"]+tablaResultado:[^"]+)"/);
         if (idMatch) pdfUrl = idMatch[1];
       }
 
@@ -87,10 +89,9 @@ export class PjScraper {
       await page.waitForSelector(searchBtnSelector, { timeout: 15_000 });
       await page.click(searchBtnSelector);
 
-      await page.waitForResponse(
-        (res) => res.url().includes("resultado.xhtml"),
-        { timeout: 20_000 }
-      );
+      await page.waitForResponse((res) => res.url().includes("resultado.xhtml"), {
+        timeout: 20_000,
+      });
       await sleep(DELAY_BETWEEN_PAGES);
 
       let hasNextPage = true;

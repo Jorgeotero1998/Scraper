@@ -223,7 +223,9 @@ export class OefaScraper {
         pagination = parsePagination($);
         const docs = this.parseDocuments($);
         allDocuments.push(...docs);
-        logger.info(`Page ${page + 1}/${pagination.totalPages}: extracted ${docs.length} documents`);
+        logger.info(
+          `Page ${page + 1}/${pagination.totalPages}: extracted ${docs.length} documents`
+        );
       }
     }
 

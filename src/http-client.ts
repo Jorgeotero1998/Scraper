@@ -73,7 +73,9 @@ export class HttpClient {
       throw new Error(String(error));
     }
     const backoff = getBackoffMs(this.initialBackoff, attempt);
-    logger.warn(`${method} ${url} — network error, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries})`);
+    logger.warn(
+      `${method} ${url} — network error, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries})`
+    );
     await sleep(backoff);
   }
 
@@ -86,7 +88,9 @@ export class HttpClient {
 
         if (response.status === RATE_LIMIT_STATUS || response.status === SERVER_ERROR_STATUS) {
           const backoff = getBackoffMs(this.initialBackoff, attempt);
-          logger.warn(`GET ${url} — HTTP ${response.status}, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries + 1})`);
+          logger.warn(
+            `GET ${url} — HTTP ${response.status}, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries + 1})`
+          );
           await sleep(backoff);
           continue;
         }
@@ -116,7 +120,9 @@ export class HttpClient {
 
         if (response.status === RATE_LIMIT_STATUS || response.status === SERVER_ERROR_STATUS) {
           const backoff = getBackoffMs(this.initialBackoff, attempt);
-          logger.warn(`POST ${url} — HTTP ${response.status}, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries + 1})`);
+          logger.warn(
+            `POST ${url} — HTTP ${response.status}, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries + 1})`
+          );
           await sleep(backoff);
           continue;
         }
@@ -139,7 +145,9 @@ export class HttpClient {
 
         if (response.status === RATE_LIMIT_STATUS) {
           const backoff = getBackoffMs(this.initialBackoff, attempt);
-          logger.warn(`GET ${url} — rate limited, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries + 1})`);
+          logger.warn(
+            `GET ${url} — rate limited, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries + 1})`
+          );
           await sleep(backoff);
           continue;
         }
@@ -174,7 +182,9 @@ export class HttpClient {
 
         if (response.status === RATE_LIMIT_STATUS) {
           const backoff = getBackoffMs(this.initialBackoff, attempt);
-          logger.warn(`POST ${url} — rate limited, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries + 1})`);
+          logger.warn(
+            `POST ${url} — rate limited, retrying in ${Math.round(backoff)}ms (attempt ${attempt + 1}/${this.maxRetries + 1})`
+          );
           await sleep(backoff);
           continue;
         }

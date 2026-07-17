@@ -12,10 +12,7 @@ const textFormat = winston.format.combine(
   })
 );
 
-const jsonFormat = winston.format.combine(
-  winston.format.timestamp(),
-  winston.format.json()
-);
+const jsonFormat = winston.format.combine(winston.format.timestamp(), winston.format.json());
 
 export const logger = winston.createLogger({
   level: LOG_LEVEL,

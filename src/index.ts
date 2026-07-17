@@ -13,8 +13,7 @@ interface CliArgs {
 }
 
 function parseArgs(argv: string[]): CliArgs {
-  const get = (flag: string) =>
-    argv.find((a) => a.startsWith(`--${flag}=`))?.split("=")[1];
+  const get = (flag: string) => argv.find((a) => a.startsWith(`--${flag}=`))?.split("=")[1];
 
   const site = (get("site") ?? "pj").toLowerCase();
   if (site !== "oefa" && site !== "pj") {

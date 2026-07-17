@@ -9,7 +9,7 @@
 [![Tests](https://img.shields.io/badge/tests-23_Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-**Production-grade CLI scraper** for Peruvian legal databases — TypeScript, Playwright, Cheerio, Docker, **23 Vitest tests**, GitHub Actions CI.
+**CLI scraper** for Peruvian legal databases — TypeScript, Playwright, Cheerio, Docker, **23 Vitest tests**, GitHub Actions CI.
 
 > 🖥️ **CLI tool — no live demo.** Clone & run locally ([Quickstart](#quickstart)); terminal output and export layout below.
 
@@ -28,7 +28,7 @@
 
 <p align="center"><sub><i>OEFA run — paginated scrape, exponential back-off on 429, JSON/CSV export, summary counts</i></sub></p>
 
-A production-ready scraper for two Peruvian legal databases:
+A scraper for two Peruvian legal databases:
 
 | Target | URL | Access |
 |--------|-----|--------|
